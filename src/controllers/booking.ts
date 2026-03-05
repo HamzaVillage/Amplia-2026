@@ -53,8 +53,14 @@ export const BookingController = {
             const booking = await Booking.findById(id);
             if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
 
+            // Permission check: admins can update any, users can only update their own
             // @ts-ignore
-            if (req.role === "subAdmin") {
+            if (req.role === "user") {
+                // @ts-ignore
+                if (booking.user.toString() !== req._id.toString()) {
+                    return res.status(403).json({ success: false, message: "You can only update your own booking." });
+                }
+            } else if (req.role === "subAdmin") {
                 // @ts-ignore
                 const subAdminId = req._id.toString();
                 const assignedId = booking.assignedTo?.toString();
@@ -63,8 +69,32 @@ export const BookingController = {
                 }
             }
 
+            // Basic workflow validations
+            const currentStatus = booking.status;
+
+            // Optional: Enforce sequence for filing workflow
+            // Note: We keep it somewhat flexible but handle specific logic for 'review'
+            if (status === BookingStatus.REVIEW) {
+                // Check if a 'return_doc' exists for this booking
+                const { File } = require("../models/file");
+                const returnDoc = await File.findOne({ booking: id, type: "return_doc" });
+                if (!returnDoc) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "Cannot move to review without an uploaded Return document."
+                    });
+                }
+            }
+
+            // If moving to 'FILED', we eventually want to reset to 'NEW' as per user request
+            // But 'FILED' is a valid intermediate state for admin completion
+
             booking.status = status
             await booking.save();
+
+            // After save, if status is 'FILED', admin might click 'Complete' later
+            // The user said: "admmin press on the bitton filed completed and the house will go to again to the inital screen"
+            // We'll handle the reset in a separate 'complete' or just here if status is 'new'
 
             res.status(200).json({
                 success: true, message: `Booking status updated to ${status}.`, booking

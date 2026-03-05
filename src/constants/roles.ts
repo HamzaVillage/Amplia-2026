@@ -11,9 +11,22 @@ export enum SubAdminStatus {
 
 export enum BookingStatus {
     NEW = "new",
+    SENT = "sent",
+    RECEIVED = "received",
+    PREPARATION = "preparation",
+    REVIEW = "review",
+    APPROVED = "approved",
+    FILED = "filed",
     SCHEDULED = "scheduled",
     ACTIVE = "active",
     COMPLETED = "completed",
+}
+
+export enum FileStatus {
+    PENDING = "pending",
+    SENT = "sent",
+    RECEIVED = "received",
+    REJECTED = "rejected",
 }
 
 export enum ChatStatus {

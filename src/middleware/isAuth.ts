@@ -45,6 +45,7 @@ export const IsAuth = {
     admins: verifyToken([UserRole.SUPER_ADMIN, UserRole.SUB_ADMIN]), // both admins
     superAdmin: verifyToken([UserRole.SUPER_ADMIN]), // only super-admin
     subAdmin: verifyToken([UserRole.SUB_ADMIN]),     // only sub-admin
-    everyone: verifyToken([UserRole.USER, UserRole.SUPER_ADMIN, UserRole.SUB_ADMIN]),     // only sub-admin
+    everyone: verifyToken([UserRole.USER, UserRole.SUPER_ADMIN, UserRole.SUB_ADMIN]),
+    authenticated: verifyToken([]),
 };
 

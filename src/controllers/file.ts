@@ -7,8 +7,8 @@ import { UserRole } from "../constants/roles";
 export const FileController = {
     add: async (req: Request, res: Response) => {
         try {
-            const { name, year, bookingId } = req.body
-            if (!req.file) return res.status(400).json({ success: false, message: "PDF file is required." });
+            const { name, year, bookingId, type } = req.body
+            if (!req.file) return res.status(400).json({ success: false, message: "File is required." });
 
             // If not linked to a booking, check for uniqueness by name+year (global files)
             if (!bookingId) {
@@ -29,6 +29,7 @@ export const FileController = {
                 name,
                 year,
                 url,
+                type: type || "user_doc",
                 booking: bookingId || null,
                 uploadedBy: uploadedBy || null
             });

@@ -45,25 +45,8 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req: any, file: Express.Multer.File, cb: FileFilterCallback) => {
-  switch (file.fieldname) {
-    case "file":        // old PDFs
-    case "messageFile": // new PDFs
-      if (file.mimetype === "application/pdf") return cb(null, true);
-      return cb(new Error("Only PDF files are allowed!"));
-
-    case "media":       // images or videos
-      if (file.mimetype.startsWith("image/") || file.mimetype.startsWith("video/")) return cb(null, true);
-      return cb(new Error("Only image or video files are allowed for 'media' upload!"));
-
-    case "profile":     // profile image
-    case "cover":       // cover image
-    case "icon":        // category icon
-      if (file.mimetype.startsWith("image/")) return cb(null, true);
-      return cb(new Error("Only images are allowed for profile/cover/icon!"));
-
-    default:
-      return cb(new Error("Invalid file type!"));
-  }
+  // Allow all file types as per user request
+  return cb(null, true);
 };
 
 const upload = multer({ storage, fileFilter });

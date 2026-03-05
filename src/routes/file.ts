@@ -8,7 +8,7 @@ import upload from "../middleware/multerConfig";
 const router = Router()
 
 router.route('/')
-    .post(IsAuth.admins, upload.single("file"), FileController.add)
+    .post(IsAuth.authenticated, upload.single("file"), FileController.add)
     .get(IsAuth.everyone, FileController.get)
 
 router.route('/:id')

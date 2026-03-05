@@ -11,7 +11,7 @@ router.route('/')
     .get(IsAuth.everyone, BookingController.getBooking)
 
 router.route('/:id')
-    .patch(IsAuth.admins, validate(BookingValidation.updateStatus), BookingController.updateStatus)
+    .patch(IsAuth.everyone, validate(BookingValidation.updateStatus), BookingController.updateStatus)
     .delete(IsAuth.everyone, BookingController.delete)
     .get(IsAuth.everyone, BookingController.getBooking)
 

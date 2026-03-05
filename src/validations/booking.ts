@@ -13,6 +13,6 @@ export const BookingValidation = {
     }),
     updateStatus: Joi.object({
         status: Joi.string()
-            .valid(...Object.values([BookingStatus.ACTIVE, BookingStatus.COMPLETED])).required(),
+            .valid(...Object.values(BookingStatus)).required(),
     }),
 }
