@@ -1,37 +1,27 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
-import { Service } from "../models/services";
 import { Booking } from "../models/booking";
-import { ICategory, IService } from "../types";
 import { BookingStatus } from "../constants/roles";
 
 export const BookingController = {
     create: async (req: Request, res: Response) => {
         try {
             const _id = req._id
-            const { service, planName, startDate, endDate, status } = req.body;
-
-            const serviceExist = await Service.findById(service).populate<{ category: ICategory }>('category');
-            if (!serviceExist) return res.status(404).json({ success: false, message: "Service not found" });
-
-
-
-            const plan = {
-                name: serviceExist.plans,
-                price: serviceExist.price,
-                description: serviceExist.description || ""
-            };
-
+            const { service, serviceName, category, planName, price, description, cover, startDate, endDate, status } = req.body;
 
             const booking = await Booking.create({
                 user: _id,
                 service: {
-                    _id: serviceExist._id,
-                    name: serviceExist.name,
-                    category: serviceExist.category.name || 'Unknown',
-                    description: serviceExist.description,
-                    cover: serviceExist.cover,
-                    plan: plan,
+                    _id: service,
+                    name: serviceName,
+                    category: category || 'Unknown',
+                    description: description || "",
+                    cover: cover || "",
+                    plan: {
+                        name: planName,
+                        price: price || 0,
+                        description: description || ""
+                    },
                 },
                 status: status || 'new',
                 startDate: startDate || new Date(),
@@ -75,10 +65,9 @@ export const BookingController = {
             // Optional: Enforce sequence for filing workflow
             // Note: We keep it somewhat flexible but handle specific logic for 'review'
             if (status === BookingStatus.REVIEW) {
-                // Check if a 'return_doc' exists for this booking
-                const { File } = require("../models/file");
-                const returnDoc = await File.findOne({ booking: id, type: "return_doc" });
-                if (!returnDoc) {
+                // Check if a 'return_doc' exists for this booking in embedded files
+                const hasReturnDoc = booking.filedFiles.some(f => f.type === "return_doc");
+                if (!hasReturnDoc) {
                     return res.status(400).json({
                         success: false,
                         message: "Cannot move to review without an uploaded Return document."

@@ -17,6 +17,16 @@ const BookingSchema = new Schema<IBooking>({
         }
     },
     status: { type: String, enum: Object.values(BookingStatus), default: BookingStatus.NEW },
+    filedFiles: [{
+        name: { type: String, required: true },
+        url: { type: String, required: true },
+        year: { type: Number, required: true },
+        status: { type: String, enum: ["pending", "sent", "received", "rejected"], default: "sent" },
+        rejectionReason: { type: String },
+        type: { type: String, enum: ["user_doc", "return_doc"], default: "user_doc" },
+        createdAt: { type: Date, default: Date.now },
+        updatedAt: { type: Date, default: Date.now }
+    }],
     assignedTo: { type: Schema.Types.ObjectId, ref: "User", default: null },
     startDate: { type: Date, default: Date.now },
     endDate: { type: Date, default: null },

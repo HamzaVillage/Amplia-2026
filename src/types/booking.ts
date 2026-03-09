@@ -17,6 +17,18 @@ export interface IBookedService {
     plan: IBookedServicePlan;
 }
 
+export interface IFileSubDoc {
+    _id: Types.ObjectId;
+    name: string;
+    url: string;
+    year: number;
+    status: BookingStatus;
+    rejectionReason?: string;
+    type: "user_doc" | "return_doc";
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 export interface IBooking extends Document {
     user: Types.ObjectId;
     service: IBookedService;
@@ -25,6 +37,7 @@ export interface IBooking extends Document {
     startDate?: Date;
     endDate?: Date;
     rating?: Types.ObjectId;
+    filedFiles: IFileSubDoc[];
     isDeleted: boolean;
     deletedAt?: Date;
 }

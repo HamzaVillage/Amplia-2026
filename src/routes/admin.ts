@@ -102,20 +102,14 @@ router.get('/stats', IsAuth.everyone, async (req: Request, res: Response, next: 
     const totalUsers = await User.countDocuments({ isDeleted: { $ne: true } });
 
     // Import models dynamically to avoid circular dependencies
-    const { Service } = await import('../models/services');
-    const { Category } = await import('../models/category');
     const { Booking } = await import('../models/booking');
 
-    const totalServices = await Service.countDocuments({ isDeleted: { $ne: true } });
-    const totalCategories = await Category.countDocuments({ isDeleted: { $ne: true } });
     const totalBookings = await Booking.countDocuments();
 
     res.status(200).json({
       success: true,
       data: {
         users: totalUsers,
-        services: totalServices,
-        categories: totalCategories,
         bookings: totalBookings,
       },
     });

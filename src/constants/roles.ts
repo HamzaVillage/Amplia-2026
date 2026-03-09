@@ -20,6 +20,7 @@ export enum BookingStatus {
     SCHEDULED = "scheduled",
     ACTIVE = "active",
     COMPLETED = "completed",
+    IN_START = "in_start",
 }
 
 export enum FileStatus {

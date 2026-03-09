@@ -1,19 +1,14 @@
 import { Request, Response } from "express";
-import { Service } from "../models/services";
 import { Rating } from "../models/rating";
 import { Booking } from "../models/booking";
 import { BookingStatus } from "../constants/roles";
 import mongoose from "mongoose";
-import { updateServiceRatings } from "../utils/updateServiceRatings";
 
 export const RatingController = {
     createRating: async (req: Request, res: Response) => {
         try {
             const _id = req._id
             const { service, booking: bookingId, rating, review } = req.body;
-
-            const serviceExist = await Service.findById(service);
-            if (!serviceExist) return res.status(404).json({ success: false, message: "Service not found" });
 
             const booking = await Booking.findById(bookingId);
             if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
@@ -22,6 +17,7 @@ export const RatingController = {
                 return res.status(400).json({ success: false, message: "You can only rate completed bookings" });
             }
 
+            // @ts-ignore
             if (booking.user.toString() !== _id) {
                 return res.status(403).json({ success: false, message: "You are not authorized to rate this booking" });
             }
@@ -33,12 +29,9 @@ export const RatingController = {
                 user: _id, service, booking: bookingId, rating, review
             });
 
-            await Service.findByIdAndUpdate(service, { $push: { ratings: newRating._id } });
             await Booking.findByIdAndUpdate(bookingId, { rating: newRating._id });
 
-            await updateServiceRatings(service);
-
-            await newRating.populate('user', '_id firstName lastName email profile')
+            await newRating.populate('user', '_id firstName lastName email profile');
             return res.status(201).json({ success: true, message: "Rating added successfully", rating: newRating });
 
         } catch (error) {
@@ -61,12 +54,11 @@ export const RatingController = {
             const ratingDoc = await Rating.findById(ratingId);
             if (!ratingDoc) return res.status(404).json({ success: false, message: "Rating not found" });
 
+            // @ts-ignore
             if (ratingDoc.user.toString() !== _id) return res.status(403).json({ success: false, message: "Unauthorized" });
 
             Object.assign(ratingDoc, updates);
             await ratingDoc.save();
-
-            await updateServiceRatings(ratingDoc.service.toString());
 
             await ratingDoc.populate("user", "_id firstName lastName email profile");
 
@@ -88,17 +80,10 @@ export const RatingController = {
             const ratingDoc = await Rating.findById(ratingId);
             if (!ratingDoc) return res.status(404).json({ success: false, message: "Rating not found" });
 
+            // @ts-ignore
             if (ratingDoc.user.toString() !== _id) return res.status(403).json({ success: false, message: "Unauthorized" });
 
-            const serviceId = ratingDoc.service.toString();
-
             await Rating.findByIdAndDelete(ratingId);
-
-            await Service.findByIdAndUpdate(serviceId, {
-                $pull: { ratings: ratingId }
-            });
-
-            await updateServiceRatings(serviceId);
 
             return res.status(200).json({
                 success: true, message: "Rating deleted successfully",
@@ -117,8 +102,7 @@ export const RatingController = {
 
             if (ratingId) {
                 const rating = await Rating.findById(ratingId)
-                    .populate("user", "_id firstName lastName email profile")
-                    .populate("service", "_id name cover description");
+                    .populate("user", "_id firstName lastName email profile");
 
                 if (!rating) return res.status(404).json({ success: false, message: "Rating not found" });
 
@@ -132,7 +116,6 @@ export const RatingController = {
 
             const ratings = await Rating.find(filter)
                 .populate("user", "_id firstName lastName email profile")
-                .populate("service", "_id name cover description")
                 .sort({ createdAt: -1 });
 
             let distribution = null;

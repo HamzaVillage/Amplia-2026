@@ -12,7 +12,7 @@ router.route('/')
     .get(IsAuth.everyone, FileController.get)
 
 router.route('/:id')
-    .patch(IsAuth.admins, upload.single("file"), FileController.update)
+    .patch(IsAuth.everyone, upload.single("file"), FileController.update)
     .delete(IsAuth.admins, FileController.delete)
     .get(IsAuth.everyone, FileController.get)
 

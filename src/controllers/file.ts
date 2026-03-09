@@ -1,41 +1,37 @@
 import { Request, Response } from "express";
-import { File } from "../models/file";
 import { Booking } from "../models/booking";
-import { IFile } from "../types";
 import { UserRole } from "../constants/roles";
 
 export const FileController = {
     add: async (req: Request, res: Response) => {
         try {
-            const { name, year, bookingId, type } = req.body
+            const { name, year, bookingId, type } = req.body;
             if (!req.file) return res.status(400).json({ success: false, message: "File is required." });
+            if (!bookingId) return res.status(400).json({ success: false, message: "Booking ID is required." });
 
-            // If not linked to a booking, check for uniqueness by name+year (global files)
-            if (!bookingId) {
-                const existingFile = await File.findOne({ name, year, booking: null });
-                if (existingFile) {
-                    return res.status(400).json({
-                        success: false, message: `A file with name '${name}' for year '${year}' already exists.`
-                    });
-                }
-            }
+            const booking = await Booking.findById(bookingId);
+            if (!booking) return res.status(404).json({ success: false, message: "Booking not found." });
 
             const url = req.file.filename;
 
-            // @ts-ignore
-            const uploadedBy = req._id;
-
-            const newFile = await File.create({
+            const newFile = {
                 name,
                 year,
                 url,
                 type: type || "user_doc",
-                booking: bookingId || null,
-                uploadedBy: uploadedBy || null
-            });
+                status: "sent",
+                createdAt: new Date(),
+                updatedAt: new Date()
+            };
+
+            // @ts-ignore
+            booking.filedFiles.push(newFile);
+            await booking.save();
+
+            const addedFile = booking.filedFiles[booking.filedFiles.length - 1];
 
             res.status(201).json({
-                success: true, message: "File uploaded successfully.", file: newFile
+                success: true, message: "File uploaded successfully.", file: addedFile
             });
         } catch (error) {
             res.status(500).json({
@@ -45,24 +41,25 @@ export const FileController = {
     },
     update: async (req: Request, res: Response) => {
         try {
-            const { id } = req.params;
-            const { name, year } = req.body;
+            const { id } = req.params; // The file _id
+            const { status, rejectionReason } = req.body;
 
-            const file = await File.findById(id);
+            // Find booking that contains this file
+            const booking = await Booking.findOne({ "filedFiles._id": id });
+            if (!booking) return res.status(404).json({ success: false, message: "File or Booking not found." });
+
+            // @ts-ignore
+            const file = booking.filedFiles.id(id);
             if (!file) return res.status(404).json({ success: false, message: "File not found." });
 
-            if (name) file.name = name;
-            if (year) file.year = year;
+            if (status) file.status = status;
+            if (rejectionReason !== undefined) file.rejectionReason = rejectionReason;
+            file.updatedAt = new Date();
 
-            if (req.file) {
-                const url = req.file.filename;
-                file.url = url;
-            }
-
-            await file.save();
+            await booking.save();
 
             res.status(200).json({
-                success: true, message: "File updated successfully.", file
+                success: true, message: "File status updated successfully.", file
             });
         } catch (error) {
             res.status(500).json({
@@ -74,13 +71,12 @@ export const FileController = {
         try {
             const { id } = req.params;
 
-            const file = await File.findById(id);
-            if (!file) return res.status(404).json({ success: false, message: "File not found." });
+            const booking = await Booking.findOne({ "filedFiles._id": id });
+            if (!booking) return res.status(404).json({ success: false, message: "File not found." });
 
-            file.isDeleted = true;
-            file.deletedAt = new Date();
-
-            await file.save();
+            // @ts-ignore
+            booking.filedFiles.pull({ _id: id });
+            await booking.save();
 
             res.status(200).json({
                 success: true, message: "File deleted successfully.",
@@ -93,60 +89,30 @@ export const FileController = {
     },
     get: async (req: Request, res: Response) => {
         try {
-            const { id } = req.params;
-            const { search, year, bookingId } = req.query;
+            const { id } = req.params; // file id or query by bookingId
+            const { bookingId } = req.query;
 
             if (id) {
-                const file = await File.findById(id);
+                const booking = await Booking.findOne({ "filedFiles._id": id });
+                if (!booking) return res.status(404).json({ success: false, message: "File not found." });
+                // @ts-ignore
+                const file = booking.filedFiles.id(id);
+                return res.status(200).json({ success: true, file });
+            }
 
-                if (!file) return res.status(404).json({ success: false, message: "File not found.", });
+            if (bookingId) {
+                const booking = await Booking.findById(bookingId);
+                if (!booking) return res.status(404).json({ success: false, message: "Booking not found." });
 
                 return res.status(200).json({
-                    success: true, message: "File fetched successfully.", file,
+                    success: true,
+                    files: booking.filedFiles
                 });
             }
 
-            let filters: any = {};
-
-            if (search) filters.name = { $regex: search, $options: "i" };
-            if (year) filters.year = Number(year);
-
-            // @ts-ignore
-            if (req.role === UserRole.USER) {
-                // @ts-ignore
-                const userBookings = await Booking.find({ user: req._id }).select('_id');
-                const userBookingIds = userBookings.map(b => b._id.toString());
-
-                if (bookingId) {
-                    // If user requested a specific booking, verify ownership
-                    if (userBookingIds.includes(bookingId.toString())) {
-                        filters.booking = bookingId;
-                    } else {
-                        return res.status(403).json({ success: false, message: "Access denied to this booking's files." });
-                    }
-                } else {
-                    // User sees files linked to all their bookings
-                    filters.booking = { $in: userBookingIds };
-                }
-            } else {
-                if (bookingId) filters.booking = bookingId;
-            }
-
-
-            const files = await File.find(filters).populate('booking', 'service status').sort({ createdAt: -1 });
-
-            if (files.length === 0) {
-                let message = "No files found.";
-                if (search && year) message = `No files found matching '${search}' for year '${year}'.`;
-                else if (search) message = `No files found matching '${search}'.`;
-                else if (year) message = `No files found for year '${year}'.`;
-
-                return res.status(200).json({ success: true, message, files: [] });
-            }
-
-            return res.status(200).json({
-                success: true, message: "Files fetched successfully.", files,
-            });
+            // If no filters, and admin, maybe return all files across all bookings? (Expensive)
+            // For now, let's just return an error or empty if no context provided.
+            return res.status(400).json({ success: false, message: "Please provide bookingId or file Id." });
 
         } catch (error) {
             res.status(500).json({
