@@ -119,10 +119,16 @@ export const FileController: IFileController = {
             }
 
             if (req.query.userId) {
+                const { year } = req.query;
                 const bookings = await Booking.find({ user: req.query.userId });
-                const allFiles = bookings.reduce((acc: any[], b) => {
+                let allFiles = bookings.reduce((acc: any[], b) => {
                     return acc.concat(b.filedFiles.map(f => ({ ...JSON.parse(JSON.stringify(f)), bookingId: b._id })));
                 }, []);
+
+                if (year && year !== 'All') {
+                    allFiles = allFiles.filter(f => f.year?.toString() === year.toString());
+                }
+
                 return res.status(200).json({ success: true, files: allFiles });
             }
 
