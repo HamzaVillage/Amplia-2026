@@ -7,11 +7,11 @@ import { BookingController } from "../controllers/booking";
 const router = Router()
 
 router.route('/')
-    .post(IsAuth.users, validate(BookingValidation.create), BookingController.create)
+    .post(IsAuth.users, BookingController.create)
     .get(IsAuth.everyone, BookingController.getBooking)
 
 router.route('/:id')
-    .patch(IsAuth.everyone, validate(BookingValidation.updateStatus), BookingController.updateStatus)
+    .patch(IsAuth.everyone, BookingController.updateStatus)
     .delete(IsAuth.everyone, BookingController.delete)
     .get(IsAuth.everyone, BookingController.getBooking)
 

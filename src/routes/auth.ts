@@ -6,15 +6,14 @@ import { AuthValidation } from "../validations/auth";
 
 const router = Router()
 
-router.post('/signup/requestOtp', upload.single("profile"),
-    validate(AuthValidation.signupRequestOtp), AuthController.signupRequestOtp)
+router.post('/signup/requestOtp', upload.single("profile"), AuthController.signupRequestOtp)
 
-router.post('/signup/verifyOtp', validate(AuthValidation.signupVerifyOtp), AuthController.signupVerifyOtp)
-router.post('/signup/resendOtp', validate(AuthValidation.resendOtp), AuthController.signupResendOtp)
-router.post('/signin', validate(AuthValidation.signin), AuthController.signin)
+router.post('/signup/verifyOtp', AuthController.signupVerifyOtp)
+router.post('/signup/resendOtp', AuthController.signupResendOtp)
+router.post('/signin', AuthController.signin)
 
-router.post('/fotgotPassword', validate(AuthValidation.forgotPass), AuthController.fotgotPassword)
-router.post('/verifyOtp', validate(AuthValidation.verifyOtp), AuthController.verifyOtp)
-router.post('/resetPassword', validate(AuthValidation.resetPassword), AuthController.resetPassword)
+router.post('/fotgotPassword', AuthController.fotgotPassword)
+router.post('/verifyOtp', AuthController.verifyOtp)
+router.post('/resetPassword', AuthController.resetPassword)
 
 export default router

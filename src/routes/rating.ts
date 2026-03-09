@@ -7,12 +7,12 @@ import { RatingController } from "../controllers/rating";
 const router = Router()
 
 router.route('/')
-    .post(IsAuth.users, validate(RatingValidation.createRating), RatingController.createRating)
+    .post(IsAuth.users, RatingController.createRating)
     .get(IsAuth.everyone, RatingController.getRating)
 
 router.route('/:ratingId')
-    .patch(IsAuth.users, validate(RatingValidation.updateRating), RatingController.updateRating)
+    .patch(IsAuth.users, RatingController.updateRating)
     .delete(IsAuth.users, RatingController.deleteRating)
     .get(IsAuth.everyone, RatingController.getRating)
-    
+
 export default router

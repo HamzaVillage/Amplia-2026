@@ -11,6 +11,9 @@ router.route('/')
     .post(IsAuth.authenticated, upload.single("file"), FileController.add)
     .get(IsAuth.everyone, FileController.get)
 
+router.route('/link')
+    .post(IsAuth.authenticated, FileController.link);
+
 router.route('/:id')
     .patch(IsAuth.everyone, upload.single("file"), FileController.update)
     .delete(IsAuth.admins, FileController.delete)

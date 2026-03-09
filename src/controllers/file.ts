@@ -2,7 +2,15 @@ import { Request, Response } from "express";
 import { Booking } from "../models/booking";
 import { UserRole } from "../constants/roles";
 
-export const FileController = {
+interface IFileController {
+    add: (req: Request, res: Response) => Promise<any>;
+    update: (req: Request, res: Response) => Promise<any>;
+    delete: (req: Request, res: Response) => Promise<any>;
+    get: (req: Request, res: Response) => Promise<any>;
+    link: (req: Request, res: Response) => Promise<any>;
+}
+
+export const FileController: IFileController = {
     add: async (req: Request, res: Response) => {
         try {
             const { name, year, bookingId, type } = req.body;
@@ -110,10 +118,51 @@ export const FileController = {
                 });
             }
 
-            // If no filters, and admin, maybe return all files across all bookings? (Expensive)
-            // For now, let's just return an error or empty if no context provided.
-            return res.status(400).json({ success: false, message: "Please provide bookingId or file Id." });
+            if (req.query.userId) {
+                const bookings = await Booking.find({ user: req.query.userId });
+                const allFiles = bookings.reduce((acc: any[], b) => {
+                    return acc.concat(b.filedFiles.map(f => ({ ...JSON.parse(JSON.stringify(f)), bookingId: b._id })));
+                }, []);
+                return res.status(200).json({ success: true, files: allFiles });
+            }
 
+            // If no filters, and admin, maybe return all files across all bookings? (Expensive)
+            return res.status(400).json({ success: false, message: "Please provide bookingId, userId or file Id." });
+
+        } catch (error) {
+            res.status(500).json({
+                message: error instanceof Error ? error.message : "*Internal server error", success: false,
+            });
+        }
+    },
+    link: async (req: Request, res: Response) => {
+        try {
+            const { name, year, bookingId, type, url } = req.body;
+            if (!url) return res.status(400).json({ success: false, message: "File URL is required." });
+            if (!bookingId) return res.status(400).json({ success: false, message: "Booking ID is required." });
+
+            const booking = await Booking.findById(bookingId);
+            if (!booking) return res.status(404).json({ success: false, message: "Booking not found." });
+
+            const newFile = {
+                name,
+                year,
+                url,
+                type: type || "user_doc",
+                status: "sent",
+                createdAt: new Date(),
+                updatedAt: new Date()
+            };
+
+            // @ts-ignore
+            booking.filedFiles.push(newFile);
+            await booking.save();
+
+            const addedFile = booking.filedFiles[booking.filedFiles.length - 1];
+
+            res.status(201).json({
+                success: true, message: "File linked successfully.", file: addedFile
+            });
         } catch (error) {
             res.status(500).json({
                 message: error instanceof Error ? error.message : "*Internal server error", success: false,

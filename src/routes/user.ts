@@ -9,9 +9,9 @@ const router = Router()
 
 router.route('/')
     .get(IsAuth.everyone, UserController.get)
-    .patch(IsAuth.everyone, upload.single("profile"), validate(UserValidation.update), UserController.update)
+    .patch(IsAuth.everyone, upload.single("profile"), UserController.update)
     .delete(IsAuth.everyone, UserController.delete)
 
-router.post('/updatePassword', IsAuth.everyone, validate(UserValidation.updatePassword), UserController.updatePassword)
+router.post('/updatePassword', IsAuth.everyone, UserController.updatePassword)
 
 export default router
