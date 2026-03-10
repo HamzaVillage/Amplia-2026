@@ -7,7 +7,7 @@ export const BookingController = {
     create: async (req: Request, res: Response) => {
         try {
             const _id = req._id
-            const { service, serviceName, category, planName, price, description, cover, startDate, endDate, status } = req.body;
+            const { service, serviceName, category, planName, price, description, cover, startDate, endDate, status, year, FiledYear } = req.body;
 
             const booking = await Booking.create({
                 user: _id,
@@ -23,6 +23,8 @@ export const BookingController = {
                         description: description || ""
                     },
                 },
+                year: year || new Date().getFullYear().toString(),
+                FiledYear: FiledYear ? Number(FiledYear) : new Date().getFullYear(),
                 status: status || 'new',
                 startDate: startDate || new Date(),
                 endDate: endDate || startDate || new Date(),
@@ -155,7 +157,7 @@ export const BookingController = {
     getBooking: async (req: Request, res: Response) => {
         try {
             const { id } = req.params;
-            const { user, status, service, search } = req.query;
+            const { user, status, service, search, year, FiledYear } = req.query;
 
             if (id) {
                 const booking = await Booking.findById(id)
@@ -172,6 +174,8 @@ export const BookingController = {
             if (status) query.status = status;
             if (service) query['service._id'] = service;
             if (search) query['service.name'] = { $regex: search, $options: 'i' };
+            if (year) query.year = year;
+            if (FiledYear) query.FiledYear = Number(FiledYear);
 
             const bookings = await Booking.find(query)
                 .populate('assignedTo', 'firstName lastName email profile')

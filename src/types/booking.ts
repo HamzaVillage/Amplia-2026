@@ -37,6 +37,8 @@ export interface IBooking extends Document {
     startDate?: Date;
     endDate?: Date;
     rating?: Types.ObjectId;
+    year: string;
+    FiledYear: number;
     filedFiles: IFileSubDoc[];
     isDeleted: boolean;
     deletedAt?: Date;
