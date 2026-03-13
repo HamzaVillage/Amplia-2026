@@ -121,12 +121,25 @@ export const FileController: IFileController = {
             if (req.query.userId) {
                 const { year } = req.query;
                 const bookings = await Booking.find({ user: req.query.userId });
-                let allFiles = bookings.reduce((acc: any[], b) => {
-                    return acc.concat(b.filedFiles.map(f => ({ ...JSON.parse(JSON.stringify(f)), bookingId: b._id })));
-                }, []);
+
+                let allFiles: any[] = [];
 
                 if (year && year !== 'All') {
-                    allFiles = allFiles.filter(f => f.year?.toString() === year.toString());
+                    // When filtering by year, include ALL files (including return_docs)
+                    // from bookings that have at least one file matching the selected year.
+                    // This ensures return files appear alongside their related user documents.
+                    for (const b of bookings) {
+                        const hasMatchingFile = b.filedFiles.some(f => f.year?.toString() === year.toString());
+                        if (hasMatchingFile) {
+                            allFiles = allFiles.concat(
+                                b.filedFiles.map(f => ({ ...JSON.parse(JSON.stringify(f)), bookingId: b._id }))
+                            );
+                        }
+                    }
+                } else {
+                    allFiles = bookings.reduce((acc: any[], b) => {
+                        return acc.concat(b.filedFiles.map(f => ({ ...JSON.parse(JSON.stringify(f)), bookingId: b._id })));
+                    }, []);
                 }
 
                 return res.status(200).json({ success: true, files: allFiles });

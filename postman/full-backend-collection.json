@@ -1,0 +1,532 @@
+{
+	"info": {
+		"_postman_id": "f5e6a1b2-c3d4-4e5f-a6b7-c8d9e0f1a2b3",
+		"name": "Amplia Village Full Backend",
+		"description": "Complete API collection for Amplia Village Backend including Auth, User, Booking, Chat, Finance, and admin services.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Signup Request OTP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{ "key": "firstName", "value": "John", "type": "text" },
+								{ "key": "lastName", "value": "Doe", "type": "text" },
+								{ "key": "email", "value": "user@example.com", "type": "text" },
+								{ "key": "companyName", "value": "Acme Inc", "type": "text" },
+								{ "key": "password", "value": "password123", "type": "text" },
+								{ "key": "profile", "type": "file", "src": [] }
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/signup/requestOtp",
+							"host": [ "{{base_url}}" ],
+							"path": [ "auth", "signup", "requestOtp" ]
+						}
+					}
+				},
+				{
+					"name": "Signup Verify OTP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\",\n    \"otp\": \"1234\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/signup/verifyOtp",
+							"host": [ "{{base_url}}" ],
+							"path": [ "auth", "signup", "verifyOtp" ]
+						}
+					}
+				},
+				{
+					"name": "Signup Resend OTP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/signup/resendOtp",
+							"host": [ "{{base_url}}" ],
+							"path": [ "auth", "signup", "resendOtp" ]
+						}
+					}
+				},
+				{
+					"name": "Signin",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@gmail.com\",\n    \"password\": \"password123\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/signin",
+							"host": [ "{{base_url}}" ],
+							"path": [ "auth", "signin" ]
+						}
+					}
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/fotgotPassword",
+							"host": [ "{{base_url}}" ],
+							"path": [ "auth", "fotgotPassword" ]
+						}
+					}
+				},
+				{
+					"name": "Verify Reset OTP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\",\n    \"otp\": \"1234\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/verifyOtp",
+							"host": [ "{{base_url}}" ],
+							"path": [ "auth", "verifyOtp" ]
+						}
+					}
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"newpassword123\",\n    \"confirmPassword\": \"newpassword123\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/resetPassword",
+							"host": [ "{{base_url}}" ],
+							"path": [ "auth", "resetPassword" ]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+						"url": {
+							"raw": "{{base_url}}/user",
+							"host": [ "{{base_url}}" ],
+							"path": [ "user" ]
+						}
+					}
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PATCH",
+						"header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{ "key": "firstName", "value": "UpdatedName", "type": "text" },
+								{ "key": "profile", "type": "file", "src": [] }
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/user",
+							"host": [ "{{base_url}}" ],
+							"path": [ "user" ]
+						}
+					}
+				},
+				{
+					"name": "Update Password",
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"currentPassword\": \"password123\",\n    \"newPassword\": \"newpassword123\",\n    \"confirmNewPassword\": \"newpassword123\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/user/updatePassword",
+							"host": [ "{{base_url}}" ],
+							"path": [ "user", "updatePassword" ]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Booking",
+			"item": [
+				{
+					"name": "Create Booking",
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"service\": \"service_id\",\n    \"planName\": \"Silver\",\n    \"status\": \"new\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/booking",
+							"host": [ "{{base_url}}" ],
+							"path": [ "booking" ]
+						}
+					}
+				},
+				{
+					"name": "Get My Bookings",
+					"request": {
+						"method": "GET",
+						"header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+						"url": {
+							"raw": "{{base_url}}/booking?userId={{user_id}}",
+							"host": [ "{{base_url}}" ],
+							"path": [ "booking" ],
+							"query": [ { "key": "userId", "value": "{{user_id}}" } ]
+						}
+					}
+				},
+				{
+					"name": "Update Booking Status",
+					"request": {
+						"method": "PATCH",
+						"header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"filed\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/booking/{{booking_id}}",
+							"host": [ "{{base_url}}" ],
+							"path": [ "booking", "{{booking_id}}" ]
+						}
+					}
+				},
+				{
+					"name": "Assign SubAdmin",
+					"request": {
+						"method": "PUT",
+						"header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"subAdminId\": \"subadmin_id\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/booking/{{booking_id}}/assign",
+							"host": [ "{{base_url}}" ],
+							"path": [ "booking", "{{booking_id}}", "assign" ]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "File",
+			"item": [
+				{
+					"name": "Upload File",
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{ "key": "file", "type": "file", "src": [] },
+								{ "key": "name", "value": "Tax Return", "type": "text" },
+								{ "key": "year", "value": "2024", "type": "text" },
+								{ "key": "bookingId", "value": "{{booking_id}}", "type": "text" }
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/file",
+							"host": [ "{{base_url}}" ],
+							"path": [ "file" ]
+						}
+					}
+				},
+				{
+					"name": "Get Files",
+					"request": {
+						"method": "GET",
+						"header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+						"url": {
+							"raw": "{{base_url}}/file?userId={{user_id}}&year=2024",
+							"host": [ "{{base_url}}" ],
+							"path": [ "file" ],
+							"query": [
+								{ "key": "userId", "value": "{{user_id}}" },
+								{ "key": "year", "value": "2024" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Link File",
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"bookingId\": \"{{booking_id}}\",\n    \"name\": \"Linked Doc\",\n    \"url\": \"uploads/file.pdf\",\n    \"year\": 2024\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/file/link",
+							"host": [ "{{base_url}}" ],
+							"path": [ "file", "link" ]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Chat",
+			"item": [
+				{
+					"name": "Create Chat",
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/chat",
+							"host": [ "{{base_url}}" ],
+							"path": [ "chat" ]
+						}
+					}
+				},
+				{
+					"name": "Send Message",
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{ "key": "message", "value": "Hello", "type": "text" },
+								{ "key": "media", "type": "file", "src": [] }
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/chat/{{chat_id}}",
+							"host": [ "{{base_url}}" ],
+							"path": [ "chat", "{{chat_id}}" ]
+						}
+					}
+				},
+				{
+					"name": "Mark Seen",
+					"request": {
+						"method": "PATCH",
+						"header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"chatId\": \"{{chat_id}}\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/chat/message",
+							"host": [ "{{base_url}}" ],
+							"path": [ "chat", "message" ]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Get Users",
+					"request": {
+						"method": "GET",
+						"header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+						"url": {
+							"raw": "{{base_url}}/admin/users",
+							"host": [ "{{base_url}}" ],
+							"path": [ "admin", "users" ]
+						}
+					}
+				},
+				{
+					"name": "Get Stats",
+					"request": {
+						"method": "GET",
+						"header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+						"url": {
+							"raw": "{{base_url}}/admin/stats",
+							"host": [ "{{base_url}}" ],
+							"path": [ "admin", "stats" ]
+						}
+					}
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"Admin\",\n    \"role\": \"admin\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/users/{{target_user_id}}",
+							"host": [ "{{base_url}}" ],
+							"path": [ "admin", "users", "{{target_user_id}}" ]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Settings & Finance",
+			"item": [
+				{
+					"name": "Get Tax Brackets",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/settings/tax-brackets",
+							"host": [ "{{base_url}}" ],
+							"path": [ "settings", "tax-brackets" ]
+						}
+					}
+				},
+				{
+					"name": "Calculate Tax",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"income\": 50000,\n    \"filingStatus\": \"single\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/tax-category/calculate",
+							"host": [ "{{base_url}}" ],
+							"path": [ "tax-category", "calculate" ]
+						}
+					}
+				},
+				{
+					"name": "Get Categories",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/category",
+							"host": [ "{{base_url}}" ],
+							"path": [ "category" ]
+						}
+					}
+				},
+				{
+					"name": "Get Services",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/service",
+							"host": [ "{{base_url}}" ],
+							"path": [ "service" ]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Rating",
+			"item": [
+				{
+					"name": "Create Rating",
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"booking\": \"{{booking_id}}\",\n    \"rating\": 5,\n    \"comment\": \"Great service\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/rating",
+							"host": [ "{{base_url}}" ],
+							"path": [ "rating" ]
+						}
+					}
+				},
+				{
+					"name": "Get Ratings",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/rating",
+							"host": [ "{{base_url}}" ],
+							"path": [ "rating" ]
+						}
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": { "type": "text/javascript", "exec": [ "" ] }
+		},
+		{
+			"listen": "test",
+			"script": { "type": "text/javascript", "exec": [ "" ] }
+		}
+	],
+	"variable": [
+		{ "key": "base_url", "value": "http://localhost:5000", "type": "string" },
+		{ "key": "token", "value": "", "type": "string" },
+		{ "key": "user_id", "value": "", "type": "string" },
+		{ "key": "booking_id", "value": "", "type": "string" },
+		{ "key": "chat_id", "value": "", "type": "string" },
+		{ "key": "target_user_id", "value": "", "type": "string" }
+	]
+}
